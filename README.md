@@ -37,6 +37,8 @@ Auto start/stop yandex cloud virtual machines based on gitlab pipeline webhooks
 
 * PORT -> App port
 * GITLAB_WEBHOOK_SECRET -> Value from `Secret token` on GitLab Webhook config
+* TELEGRAM_CHAT_ID -> Set telegram chat id if you need logs into telegram (require TELEGRAM_TOKEN)
+* TELEGRAM_TOKEN -> Set telegram bot token if you need logs into telegram (require TELEGRAM_CHAT_ID)
 * STOP_INSTANCE_AFTER -> After what time (in ms) need stop instance
 * RESEND_START_INSTANCE_AFTER -> After what time (in ms) resend start instance if instance already started by code (for preemptible instances)
 * YANDEX_INSTANCE_ID -> ID of Virtual machine instance
