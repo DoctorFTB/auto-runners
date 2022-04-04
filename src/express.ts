@@ -1,9 +1,9 @@
 import express from 'express';
 import { urlencoded, json } from 'body-parser';
-import { WebhookGitlabBody } from './interfaces';
+import { IWebhookHandlerData } from './interfaces';
 import { Logger } from './logger';
 
-export function setupExpress(fn: (data: WebhookGitlabBody) => void) {
+export function setupExpress(webhookData: IWebhookHandlerData) {
   const app = express();
   app.use(urlencoded({ extended: false }));
   app.use(json());
@@ -18,7 +18,25 @@ export function setupExpress(fn: (data: WebhookGitlabBody) => void) {
       return res.status(400).send('Bad Request');
     }
 
-    fn(req.body);
+    webhookData.onNewWebhook(req.body);
+
+    res.status(200).send('ok');
+  });
+
+  app.post('/list', async (req, res) => {
+    if (req.headers['token'] !== process.env.GITLAB_WEBHOOK_SECRET) {
+      return res.status(400).send('Bad Request');
+    }
+
+    res.status(200).send(webhookData.currentPipelines);
+  });
+
+  app.post('/reset', async (req, res) => {
+    if (req.headers['token'] !== process.env.GITLAB_WEBHOOK_SECRET) {
+      return res.status(400).send('Bad Request');
+    }
+
+    webhookData.stopInstanceTimeout(-1);
 
     res.status(200).send('ok');
   });

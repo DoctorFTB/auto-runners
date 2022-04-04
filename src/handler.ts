@@ -1,4 +1,4 @@
-import { WebhookGitlabBody } from './interfaces';
+import { IWebhookHandlerData, WebhookGitlabBody } from './interfaces';
 import { getStatusInstance, startInstance, stopInstance } from './yandex/yc-api';
 import { Logger } from './logger';
 
@@ -15,13 +15,20 @@ const { timeoutTime, resendAfter } = (() => {
   };
 })();
 
-export async function webhookHandler() {
+export async function webhookHandler(): Promise<IWebhookHandlerData> {
   let stopInstanceTimeoutId: ReturnType<typeof setTimeout>;
 
   let instanceStarted: boolean = await getStatusInstance() === 'RUNNING';
   let previousInstanceStarted = 0;
 
   const currentPipelines: Record<string, true> = {};
+
+  function stopInstanceTimeout(id: number) {
+    clearTimeout(stopInstanceTimeoutId);
+    stopInstanceTimeoutId = setTimeout(() => {
+      stopInstance(id).then(() => instanceStarted = false);
+    }, timeoutTime);
+  }
 
   function onNewWebhook(data: WebhookGitlabBody) {
     let log = `Got webhook '${data.object_attributes.status}' (${data.object_attributes.id}) `
@@ -60,10 +67,7 @@ export async function webhookHandler() {
         Logger.log('Active pipelines: ' + size);
 
         if (!size) {
-          clearTimeout(stopInstanceTimeoutId);
-          stopInstanceTimeoutId = setTimeout(() => {
-            stopInstance(data.object_attributes.id).then(() => instanceStarted = false);
-          }, timeoutTime);
+          stopInstanceTimeout(data.object_attributes.id);
         }
         break;
       default:
@@ -71,5 +75,9 @@ export async function webhookHandler() {
     }
   }
 
-  return onNewWebhook;
+  return {
+    onNewWebhook,
+    currentPipelines,
+    stopInstanceTimeout,
+  };
 }

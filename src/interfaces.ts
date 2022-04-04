@@ -17,3 +17,9 @@ export interface WebhookGitlabBody {
     path_with_namespace: string;
   };
 }
+
+export interface IWebhookHandlerData {
+  currentPipelines: Record<string, true>;
+  stopInstanceTimeout: (id: number) => void;
+  onNewWebhook: (data: WebhookGitlabBody) => void;
+}
