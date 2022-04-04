@@ -10,7 +10,8 @@
     "yandex"
   ],
   "scripts": {
-    "start": "ts-node src/main.ts"
+    "start": "ts-node src/main.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "axios": "^0.26.1",

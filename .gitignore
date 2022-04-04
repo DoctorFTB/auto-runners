@@ -4,5 +4,7 @@
 
 node_modules
 
+dist
+
 .env.local
 local-key.pem
