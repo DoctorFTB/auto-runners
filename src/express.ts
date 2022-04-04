@@ -36,7 +36,7 @@ export function setupExpress(webhookData: IWebhookHandlerData) {
       return res.status(400).send('Bad Request');
     }
 
-    webhookData.stopInstanceTimeout(-1);
+    webhookData.resetStatus();
 
     res.status(200).send('ok');
   });

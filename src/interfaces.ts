@@ -20,6 +20,6 @@ export interface WebhookGitlabBody {
 
 export interface IWebhookHandlerData {
   currentPipelines: Record<string, true>;
-  stopInstanceTimeout: (id: number) => void;
+  resetStatus: () => void;
   onNewWebhook: (data: WebhookGitlabBody) => void;
 }

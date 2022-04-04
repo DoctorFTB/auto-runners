@@ -30,6 +30,14 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
     }, timeoutTime);
   }
 
+  function resetStatus() {
+    stopInstanceTimeout(-1);
+
+    Object.keys(currentPipelines).forEach((key) => {
+      delete currentPipelines[key];
+    });
+  }
+
   function onNewWebhook(data: WebhookGitlabBody) {
     let log = `Got webhook '${data.object_attributes.status}' (${data.object_attributes.id}) `
     log += `for ${data.project.path_with_namespace} by ${data.user.username}. `;
@@ -78,6 +86,6 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
   return {
     onNewWebhook,
     currentPipelines,
-    stopInstanceTimeout,
+    resetStatus,
   };
 }
