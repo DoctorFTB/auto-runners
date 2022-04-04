@@ -2,3 +2,4 @@ version: '3.4'
 services:
   auto-runners:
     build: ./
+    network_mode: host
