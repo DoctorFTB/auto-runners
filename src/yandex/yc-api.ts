@@ -29,14 +29,14 @@ type InstanceStatus =
   | 'DELETING'; // Instance is being deleted.
 
 export async function startInstance(...logCtx: unknown[]): Promise<boolean> {
-  Logger.log('startInstance running', logCtx);
+  Logger.log('startInstance running', ...logCtx);
   const res = (await sendInstanceAction('start')).done;
   Logger.log(`startInstance finished, already started: ${res}`);
   return res;
 }
 
 export async function stopInstance(...logCtx: unknown[]): Promise<boolean> {
-  Logger.log('stopInstance running', logCtx);
+  Logger.log('stopInstance running', ...logCtx);
   const res = (await sendInstanceAction('stop')).done;
   Logger.log(`stopInstance finished, already stopped: ${res}`);
   return res;
