@@ -30,11 +30,8 @@ export async function webhookHandler() {
     Logger.log(log);
 
     switch (data.object_attributes.status) {
-      case 'pending':
-        // no-op, we're only waiting
-        break;
-
       case 'created':
+      case 'pending':
       case 'running':
         // I'm using same code because status is 'running' after rerun pipeline (I think it's GitLab bug :sad:)
         // But if runners offline, we go only created status
