@@ -28,14 +28,14 @@ type InstanceStatus =
   | 'CRASHED' // Instance crashed and will be restarted automatically.
   | 'DELETING'; // Instance is being deleted.
 
-export async function startInstance(pipelineId: number): Promise<boolean> {
+export async function startInstance(pipelineId: number | string): Promise<boolean> {
   Logger.log('startInstance running, pipeline id: ' + pipelineId);
   const res = (await sendInstanceAction('start')).done;
   Logger.log(`startInstance finished, already started: ${res}`);
   return res;
 }
 
-export async function stopInstance(pipelineId: number): Promise<boolean> {
+export async function stopInstance(pipelineId: number | string): Promise<boolean> {
   Logger.log('stopInstance running, pipeline id: ' + pipelineId);
   const res = (await sendInstanceAction('stop')).done;
   Logger.log(`stopInstance finished, already stopped: ${res}`);

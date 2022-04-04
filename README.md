@@ -37,6 +37,9 @@ Auto start/stop yandex cloud virtual machines based on gitlab pipeline webhooks
 
 * PORT -> App port
 * GITLAB_WEBHOOK_SECRET -> Value from `Secret token` on GitLab Webhook config
+* GITLAB_DOMAIN -> gitlab domain, needs for custom gitlab urls
+* GITLAB_TOKEN -> gitlab token for calling api
+* GITLAB_REFETCH_INTERVAL -> every what time (in ms) send refetch pipelines. In some cases gitlab doesn't send webhook events
 * TELEGRAM_CHAT_ID -> Set telegram chat id if you need logs into telegram (require TELEGRAM_TOKEN)
 * TELEGRAM_TOKEN -> Set telegram bot token if you need logs into telegram (require TELEGRAM_CHAT_ID)
 * STOP_INSTANCE_AFTER -> After what time (in ms) need stop instance

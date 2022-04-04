@@ -22,7 +22,7 @@ async function sendTelegramLog(level: string, text: string) {
   if (chatId && token) {
     const data = {
       chat_id: chatId,
-      text: level + ' <> ' + text,
+      text: level + ': ' + text,
       disable_notification: true,
     };
     await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, data, {
@@ -36,18 +36,18 @@ export class Logger {
   public static log(text: string) {
     const log = `[${getTimestamp()}] ${text}`;
     console.log(log);
-    sendTelegramLog('log', log);
+    sendTelegramLog('✅', log);
   }
 
   public static warn(text: string) {
     const log = `[${getTimestamp()}] ${text}`;
     console.warn(log);
-    sendTelegramLog('warn', log);
+    sendTelegramLog('⭕', log);
   }
 
   public static error(text: string, additional: string) {
     const log = `[${getTimestamp()}] ${text} \n ${additional}`;
     console.error(log);
-    sendTelegramLog('error', log);
+    sendTelegramLog('❌', log);
   }
 }

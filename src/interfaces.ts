@@ -2,6 +2,7 @@ export interface WebhookGitlabBody {
   object_kind: 'pipeline';
   object_attributes: {
     id: number;
+    ref: string;
     status: 'created' | 'running' | 'pending' | 'success' | 'failed' | 'canceled' | 'skipped'
     created_at: string;
     finished_at: string | null;
@@ -19,7 +20,7 @@ export interface WebhookGitlabBody {
 }
 
 export interface IWebhookHandlerData {
-  currentPipelines: Record<string, true>;
+  currentPipelines: Record<string, string>;
   resetStatus: () => void;
   onNewWebhook: (data: WebhookGitlabBody) => void;
 }
