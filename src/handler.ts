@@ -58,8 +58,10 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
       if (instanceStarted) {
         const keys = Object.entries(currentPipelines);
         if (keys.length) {
+          Logger.log(`Fetching ${keys.length} pipelines by api request..`);
           for (let [id, path] of keys) {
             getPipelineStatusById(path, id).then((status) => {
+              Logger.log(`Fetch pipeline ${id} status by api request, status: ${status}`);
               if (['canceled', 'failed', 'skipped', 'success'].includes(status)) {
                 onStopActions(id);
               }
