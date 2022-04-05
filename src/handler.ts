@@ -95,6 +95,8 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
           });
         }
 
+        clearTimeout(stopInstanceTimeoutId);
+
         break;
       case 'canceled':
       case 'failed':
