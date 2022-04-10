@@ -83,21 +83,19 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
       case 'pending':
       case 'running':
         // I'm using same code because status is 'running' after rerun pipeline (I think it's GitLab bug :sad:)
-        // But if runners offline, we go only created status
         // But if runners offline, we only get created status
-        if (
-          !instanceStarted ||
-          !currentPipelines[data.object_attributes.id] ||
-          previousInstanceStarted < Date.now() - resendAfter
-        ) {
-          currentPipelines[data.object_attributes.id] = data.project.path_with_namespace;
+
+        clearTimeout(stopInstanceTimeoutId);
+
+        currentPipelines[data.object_attributes.id] = data.project.path_with_namespace;
+
+        const startInstanceByTime = previousInstanceStarted < Date.now() - resendAfter;
+        if (!instanceStarted || startInstanceByTime) {
           startInstance(data.object_attributes.id).then(() => {
             previousInstanceStarted = Date.now();
             instanceStarted = true;
           });
         }
-
-        clearTimeout(stopInstanceTimeoutId);
 
         break;
       case 'canceled':
