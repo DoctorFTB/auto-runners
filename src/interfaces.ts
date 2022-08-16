@@ -3,7 +3,7 @@ export interface WebhookGitlabBody {
   object_attributes: {
     id: number;
     ref: string;
-    status: 'created' | 'running' | 'pending' | 'success' | 'failed' | 'canceled' | 'skipped'
+    status: 'created' | 'running' | 'pending' | 'success' | 'failed' | 'canceled' | 'skipped' | 'manual';
     created_at: string;
     finished_at: string | null;
     duration: number | null;

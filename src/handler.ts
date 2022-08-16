@@ -62,7 +62,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
           for (let [id, path] of keys) {
             getPipelineStatusById(path, id).then((status) => {
               Logger.log(`Fetch pipeline ${id} status by api request, status: ${status}`);
-              if (['canceled', 'failed', 'skipped', 'success'].includes(status)) {
+              if (['canceled', 'failed', 'skipped', 'success', 'manual'].includes(status)) {
                 onStopActions(id);
               }
             });
@@ -102,6 +102,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
       case 'failed':
       case 'skipped':
       case 'success':
+      case 'manual':
         // In all cases we don't need active machine
         onStopActions(data.object_attributes.id);
         break;
