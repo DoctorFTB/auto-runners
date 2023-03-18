@@ -15,13 +15,13 @@ const { gitlabDomain, gitlabToken } = (() => {
 export async function getPipelineStatusById(
   path: string,
   id: number | string
-): Promise<WebhookGitlabBody["object_attributes"]["status"]> {
+): Promise<WebhookGitlabBody["object_attributes"]["status"] | 'error'> {
   const url = `${gitlabDomain}/api/v4/projects/${path.replace(/\//g, '%2F')}/pipelines/${id}`;
 
   try {
     return (await axios.get(url, { headers: { 'PRIVATE-TOKEN': gitlabToken } })).data.status;
   } catch (e: any) {
-    Logger.error('Got error on request pipeline status by id', JSON.stringify(e.response));
-    throw new Error(e.response);
+    Logger.error('Got error on request pipeline status by id', JSON.stringify(e.response.data));
+    return 'error';
   }
 }

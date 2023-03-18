@@ -84,8 +84,8 @@ export async function getToken() {
 
       tokenData = response.data;
     } catch (e: any) {
-      Logger.error('Got error on request IAM token', JSON.stringify(e.response));
-      throw new Error(e.response);
+      Logger.error('Got error on request IAM token', JSON.stringify(e.response.data));
+      throw new Error(JSON.stringify(e.response.data));
     }
   }
 

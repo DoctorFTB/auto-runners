@@ -1,5 +1,5 @@
 import { IWebhookHandlerData, WebhookGitlabBody } from './interfaces';
-import { getStatusInstance, startInstance, stopInstance } from './yandex/yc-api';
+import { isInstanceRunning, startInstance, stopInstance } from './yandex/yc-api';
 import { Logger } from './logger';
 import { getPipelineStatusById } from './gitlab/gitlab-api';
 
@@ -22,13 +22,14 @@ const { timeoutTime, resendAfter, refretchInterval } = (() => {
 export async function webhookHandler(): Promise<IWebhookHandlerData> {
   let stopInstanceTimeoutId: ReturnType<typeof setTimeout>;
 
-  let instanceStarted: boolean = await getStatusInstance() === 'RUNNING';
+  let instanceStarted: boolean = await isInstanceRunning();
   let previousInstanceStarted = 0;
 
   const currentPipelines: Record<string, string> = {};
 
   function stopInstanceTimeout(id: number | string) {
     clearTimeout(stopInstanceTimeoutId);
+
     stopInstanceTimeoutId = setTimeout(() => {
       stopInstance(id).then(() => instanceStarted = false);
     }, timeoutTime);
@@ -54,20 +55,29 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
   }
 
   if (refretchInterval > 0) {
-    setInterval(() => {
-      if (instanceStarted) {
-        const keys = Object.entries(currentPipelines);
-        if (keys.length) {
-          Logger.log(`Fetching ${keys.length} pipelines by api request..`);
-          for (let [id, path] of keys) {
-            getPipelineStatusById(path, id).then((status) => {
-              Logger.log(`Fetch pipeline ${id} status by api request, status: ${status}`);
-              if (['canceled', 'failed', 'skipped', 'success', 'manual'].includes(status)) {
-                onStopActions(id);
-              }
-            });
+    setInterval(async () => {
+      try {
+        instanceStarted = await isInstanceRunning();
+
+        if (instanceStarted) {
+          const keys = Object.entries(currentPipelines);
+
+          if (keys.length) {
+            Logger.log(`Fetching ${keys.length} pipelines by api request..`);
+
+            for (let [id, path] of keys) {
+              getPipelineStatusById(path, id).then((status) => {
+                Logger.log(`Fetch pipeline ${id} status by api request, status: ${status}`);
+
+                if (['canceled', 'failed', 'skipped', 'success', 'manual'].includes(status)) {
+                  onStopActions(id);
+                }
+              });
+            }
           }
         }
+      } catch (e: any) {
+        Logger.error('Got error in interval', e.message);
       }
     }, refretchInterval);
   }

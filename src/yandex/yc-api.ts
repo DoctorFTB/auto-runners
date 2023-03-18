@@ -28,24 +28,42 @@ type InstanceStatus =
   | 'CRASHED' // Instance crashed and will be restarted automatically.
   | 'DELETING'; // Instance is being deleted.
 
-export async function startInstance(pipelineId: number | string): Promise<boolean> {
+export async function startInstance(pipelineId: number | string) {
   Logger.log('startInstance running, pipeline id: ' + pipelineId);
-  const res = (await sendInstanceAction('start')).done;
-  Logger.log(`startInstance finished, already started: ${res}`);
-  return res;
+
+  if (await isInstanceRunning()) {
+    Logger.log('startInstance not stopped, pipeline id: ' + pipelineId);
+    return;
+  }
+
+  const res = (await sendInstanceAction('start'))?.done || 'error';
+  Logger.log('startInstance finished, already started: ' + res);
 }
 
-export async function stopInstance(pipelineId: number | string): Promise<boolean> {
+export async function stopInstance(pipelineId: number | string) {
   Logger.log('stopInstance running, pipeline id: ' + pipelineId);
-  const res = (await sendInstanceAction('stop')).done;
-  Logger.log(`stopInstance finished, already stopped: ${res}`);
-  return res;
+
+  if (!(await isInstanceRunning())) {
+    Logger.log('stopInstance not running, pipeline id: ' + pipelineId);
+    return;
+  }
+
+  const res = (await sendInstanceAction('stop'))?.done || 'error';
+  Logger.log('stopInstance finished, already stopped: ' + res);
 }
 
-export async function getStatusInstance(): Promise<InstanceStatus> {
-  Logger.log('getStatus running');
-  const res = (await sendInstanceAction('get')).status;
-  Logger.log(`getStatus finished, status: ${res}`);
+export async function isInstanceRunning() {
+  const status = await getInstanceStatus();
+
+  return ['PROVISIONING', 'STARTING', 'RUNNING'].includes(status);
+}
+
+async function getInstanceStatus(): Promise<InstanceStatus> {
+  Logger.log('getInstanceStatus running');
+
+  const res = (await sendInstanceAction('get'))?.status || 'error';
+  Logger.log(`getInstanceStatus finished, status: ${res}`);
+
   return res;
 }
 
@@ -68,7 +86,7 @@ async function sendInstanceAction(action: keyof typeof actions) {
       )
     ).data;
   } catch (e: any) {
-    Logger.error(`Got error on request ${action} instance`, JSON.stringify(e.response));
-    throw new Error(e.response);
+    Logger.error(`Got error on request ${action} instance`, JSON.stringify(e.response.data));
+    return null;
   }
 }
