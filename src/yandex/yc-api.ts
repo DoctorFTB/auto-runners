@@ -36,7 +36,7 @@ export async function startInstance(pipelineId: number | string) {
     return;
   }
 
-  const res = (await sendInstanceAction('start'))?.done || 'error';
+  const res = (await sendInstanceAction('start'))?.done ?? 'error';
   Logger.log('startInstance finished, already started: ' + res);
 }
 
@@ -48,7 +48,7 @@ export async function stopInstance(pipelineId: number | string) {
     return;
   }
 
-  const res = (await sendInstanceAction('stop'))?.done || 'error';
+  const res = (await sendInstanceAction('stop'))?.done ?? 'error';
   Logger.log('stopInstance finished, already stopped: ' + res);
 }
 
@@ -61,7 +61,7 @@ export async function isInstanceRunning() {
 async function getInstanceStatus(): Promise<InstanceStatus> {
   Logger.log('getInstanceStatus running');
 
-  const res = (await sendInstanceAction('get'))?.status || 'error';
+  const res = (await sendInstanceAction('get'))?.status ?? 'error';
   Logger.log(`getInstanceStatus finished, status: ${res}`);
 
   return res;
