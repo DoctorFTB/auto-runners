@@ -3,19 +3,22 @@ import { isInstanceRunning, startInstance, stopInstance } from './yandex/yc-api'
 import { Logger } from './logger';
 import { getPipelineStatusById } from './gitlab/gitlab-api';
 
-const { timeoutTime, resendAfter, refretchInterval } = (() => {
+const { timeoutTime, resendAfter, gitlabRefetchInterval, instanceStatusRefetchInterval } = (() => {
   const timeoutTime = process.env.STOP_INSTANCE_AFTER;
   const resendAfter = process.env.RESEND_START_INSTANCE_AFTER;
-  const refretchInterval = process.env.GITLAB_REFETCH_INTERVAL;
+  const gitlabRefetchInterval = process.env.GITLAB_REFETCH_INTERVAL;
+  const instanceStatusRefetchInterval = process.env.INSTANCE_STATUS_REFETCH_INTERVAL;
 
   if (!timeoutTime || isNaN(+timeoutTime)) throw new Error('STOP_INSTANCE_AFTER variable not configured or its not number');
   if (!resendAfter || isNaN(+resendAfter)) throw new Error('RESEND_START_INSTANCE_AFTER variable not configured or its not number');
-  if (!refretchInterval || isNaN(+refretchInterval)) throw new Error('GITLAB_REFETCH_INTERVAL variable not configured or its not number');
+  if (!gitlabRefetchInterval || isNaN(+gitlabRefetchInterval)) throw new Error('GITLAB_REFETCH_INTERVAL variable not configured or its not number');
+  if (!instanceStatusRefetchInterval || isNaN(+instanceStatusRefetchInterval)) throw new Error('INSTANCE_STATUS_REFETCH_INTERVAL variable not configured or its not number');
 
   return {
     timeoutTime: +timeoutTime,
     resendAfter: +resendAfter,
-    refretchInterval: +refretchInterval,
+    gitlabRefetchInterval: +gitlabRefetchInterval,
+    instanceStatusRefetchInterval: +instanceStatusRefetchInterval,
   };
 })();
 
@@ -54,18 +57,16 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
     });
   }
 
-  if (refretchInterval > 0) {
+  if (gitlabRefetchInterval > 0) {
     setInterval(async () => {
       try {
-        instanceStarted = await isInstanceRunning();
-
         if (instanceStarted) {
-          const keys = Object.entries(currentPipelines);
+          const entries = Object.entries(currentPipelines);
 
-          if (keys.length) {
-            Logger.log(`Fetching ${keys.length} pipelines by api request..`);
+          if (entries.length) {
+            Logger.log(`Fetching ${entries.length} pipelines by api request..`);
 
-            for (let [id, path] of keys) {
+            for (let [id, path] of entries) {
               getPipelineStatusById(path, id).then((status) => {
                 Logger.log(`Fetch pipeline ${id} status by api request, status: ${status}`);
 
@@ -77,9 +78,19 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
           }
         }
       } catch (e: any) {
-        Logger.error('Got error in interval', e.message);
+        Logger.error('Got error in gitlab refetch interval', e.message);
       }
-    }, refretchInterval);
+    }, gitlabRefetchInterval);
+  }
+
+  if (instanceStatusRefetchInterval > 0) {
+    setInterval(async () => {
+      try {
+        instanceStarted = await isInstanceRunning();
+      } catch (e: any) {
+        Logger.error('Got error in instance status refetch interval', e.message);
+      }
+    }, instanceStatusRefetchInterval);
   }
 
   function onNewWebhook(data: WebhookGitlabBody) {
