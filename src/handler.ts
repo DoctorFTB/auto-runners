@@ -112,9 +112,9 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
 
         const startInstanceByTime = previousInstanceStarted < Date.now() - resendAfter;
         if (!instanceStarted || startInstanceByTime) {
-          startInstance(data.object_attributes.id).then(() => {
+          startInstance(data.object_attributes.id).then((res) => {
             previousInstanceStarted = Date.now();
-            instanceStarted = true;
+            instanceStarted = res;
           });
         }
 

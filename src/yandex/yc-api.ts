@@ -1,6 +1,7 @@
 import { getToken } from './iam-gen';
 import axios from 'axios';
 import { Logger } from '../logger';
+import { sleep } from '../utils';
 
 const instanceId = (() => {
   const instanceId = process.env.YANDEX_INSTANCE_ID;
@@ -33,11 +34,19 @@ export async function startInstance(pipelineId: number | string) {
 
   if (await isInstanceRunning()) {
     Logger.log('startInstance not stopped, pipeline id: ' + pipelineId);
-    return;
+    return true;
   }
 
-  const res = (await sendInstanceAction('start'))?.done ?? 'error';
+  let res = (await sendInstanceAction('start'))?.done ?? 'error';
   Logger.log('startInstance finished, already started: ' + res);
+
+  if (res === 'error') {
+    await sleep(1_500);
+
+    res = (await sendInstanceAction('start'))?.done ?? 'error';
+  }
+
+  return res !== 'error';
 }
 
 export async function stopInstance(pipelineId: number | string) {
