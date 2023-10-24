@@ -30,15 +30,15 @@ type InstanceStatus =
   | 'DELETING'; // Instance is being deleted.
 
 export async function startInstance(pipelineId: number | string) {
-  Logger.log('startInstance running, pipeline id: ' + pipelineId);
+  Logger.info('startInstance running, pipeline id: ' + pipelineId);
 
   if (await isInstanceRunning()) {
-    Logger.log('startInstance not stopped, pipeline id: ' + pipelineId);
+    Logger.info('startInstance not stopped, pipeline id: ' + pipelineId);
     return true;
   }
 
   let res = (await sendInstanceAction('start'))?.done ?? 'error';
-  Logger.log('startInstance finished, already started: ' + res);
+  Logger.info('startInstance finished, already started: ' + res);
 
   if (res === 'error') {
     await sleep(1_500);
@@ -50,15 +50,15 @@ export async function startInstance(pipelineId: number | string) {
 }
 
 export async function stopInstance(pipelineId: number | string) {
-  Logger.log('stopInstance running, pipeline id: ' + pipelineId);
+  Logger.info('stopInstance running, pipeline id: ' + pipelineId);
 
   if (!(await isInstanceRunning())) {
-    Logger.log('stopInstance not running, pipeline id: ' + pipelineId);
+    Logger.info('stopInstance not running, pipeline id: ' + pipelineId);
     return;
   }
 
   const res = (await sendInstanceAction('stop'))?.done ?? 'error';
-  Logger.log('stopInstance finished, already stopped: ' + res);
+  Logger.info('stopInstance finished, already stopped: ' + res);
 }
 
 export async function isInstanceRunning() {
@@ -68,10 +68,10 @@ export async function isInstanceRunning() {
 }
 
 async function getInstanceStatus(): Promise<InstanceStatus> {
-  Logger.log('getInstanceStatus running');
+  Logger.info('getInstanceStatus running');
 
   const res = (await sendInstanceAction('get'))?.status ?? 'error';
-  Logger.log(`getInstanceStatus finished, status: ${res}`);
+  Logger.info(`getInstanceStatus finished, status: ${res}`);
 
   return res;
 }

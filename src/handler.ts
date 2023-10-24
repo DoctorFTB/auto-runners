@@ -42,7 +42,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
     delete currentPipelines[id];
 
     const size = Object.keys(currentPipelines).length;
-    Logger.log('Active pipelines: ' + size);
+    Logger.info('Active pipelines: ' + size);
 
     if (!size) {
       stopInstanceTimeout(id);
@@ -64,11 +64,11 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
           const entries = Object.entries(currentPipelines);
 
           if (entries.length) {
-            Logger.log(`Fetching ${entries.length} pipelines by api request..`);
+            Logger.info(`Fetching ${entries.length} pipelines by api request..`);
 
             for (let [id, path] of entries) {
               getPipelineStatusById(path, id).then((status) => {
-                Logger.log(`Fetch pipeline ${id} status by api request, status: ${status}`);
+                Logger.info(`Fetch pipeline ${id} status by api request, status: ${status}`);
 
                 if (['canceled', 'failed', 'skipped', 'success', 'manual'].includes(status)) {
                   onStopActions(id);
@@ -97,7 +97,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
     let log = `Got webhook '${data.object_attributes.status}' (${data.object_attributes.id}) `;
     log += `for ${data.project.path_with_namespace} (${data.object_attributes.ref}) by ${data.user.username}. `;
     log += `Instance started: ${instanceStarted}`;
-    Logger.log(log);
+    Logger.info(log);
 
     switch (data.object_attributes.status) {
       case 'created':

@@ -41,5 +41,5 @@ export function setupExpress(webhookData: IWebhookHandlerData) {
     res.status(200).send('ok');
   });
 
-  app.listen(process.env.PORT, () => Logger.log(`Started on http://localhost:${process.env.PORT}`));
+  app.listen(process.env.PORT, () => Logger.info(`Started on http://localhost:${process.env.PORT}`));
 }

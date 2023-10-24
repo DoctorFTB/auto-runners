@@ -36,6 +36,8 @@ Auto start/stop yandex cloud virtual machines based on gitlab pipeline webhooks
 ### Config:
 
 * PORT -> App port
+* LOG_LEVEL -> Log level, ignored for app logs if FORCE_CONSOLE_LOGS = true, available: 'DEBUG', 'INFO', 'WARN', 'ERROR', default: 'DEBUG'
+* FORCE_CONSOLE_LOGS -> Ignore LOG_LEVEL for app logs, available: true/false
 * GITLAB_WEBHOOK_SECRET -> Value from `Secret token` on GitLab Webhook config
 * GITLAB_DOMAIN -> gitlab domain, needs for custom gitlab urls
 * GITLAB_TOKEN -> gitlab token for calling api

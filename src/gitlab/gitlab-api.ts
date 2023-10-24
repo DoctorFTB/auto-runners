@@ -21,7 +21,12 @@ export async function getPipelineStatusById(
   try {
     return (await axios.get(url, { headers: { 'PRIVATE-TOKEN': gitlabToken } })).data.status;
   } catch (e: any) {
-    Logger.error('Got error on request pipeline status by id', JSON.stringify(e.response.data));
+    Logger.error(`Got error on request pipeline status by id ${id}`, JSON.stringify(e.response.data));
+
+    if (e.response.data.message === '404 Not found') {
+      return 'canceled';
+    }
+
     return 'error';
   }
 }
