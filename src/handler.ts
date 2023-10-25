@@ -28,7 +28,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
   let instanceStarted: boolean = await isInstanceRunning();
   let previousInstanceStarted = 0;
 
-  const currentPipelines: Record<string, string> = {};
+  const currentPipelines: Record<string, number> = {};
 
   function stopInstanceTimeout(id: number | string) {
     clearTimeout(stopInstanceTimeoutId);
@@ -66,8 +66,8 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
           if (entries.length) {
             Logger.info(`Fetching ${entries.length} pipelines by api request..`);
 
-            for (let [id, path] of entries) {
-              getPipelineStatusById(path, id).then((status) => {
+            for (let [id, projectId] of entries) {
+              getPipelineStatusById(projectId, id).then((status) => {
                 Logger.info(`Fetch pipeline ${id} status by api request, status: ${status}`);
 
                 if (['canceled', 'failed', 'skipped', 'success', 'manual'].includes(status)) {
@@ -108,7 +108,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
 
         clearTimeout(stopInstanceTimeoutId);
 
-        currentPipelines[data.object_attributes.id] = data.project.path_with_namespace;
+        currentPipelines[data.object_attributes.id] = data.project.id;
 
         const startInstanceByTime = previousInstanceStarted < Date.now() - resendAfter;
         if (!instanceStarted || startInstanceByTime) {

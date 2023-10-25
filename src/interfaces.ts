@@ -20,7 +20,7 @@ export interface WebhookGitlabBody {
 }
 
 export interface IWebhookHandlerData {
-  currentPipelines: Record<string, string>;
+  currentPipelines: Record<string, number>;
   resetStatus: () => void;
   onNewWebhook: (data: WebhookGitlabBody) => void;
 }
