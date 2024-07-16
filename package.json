@@ -1,0 +1,39 @@
+{
+  "name": "auto-runners",
+  "version": "1.0.0",
+  "description": "Auto start/stop yandex cloud virtual machines based on gitlab job webhooks",
+  "author": "FTB_lag",
+  "license": "MIT",
+  "keywords": [
+    "gitlab",
+    "runners",
+    "yandex"
+  ],
+  "scripts": {
+    "start": "ts-node src/main.ts",
+    "build": "tsc",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "axios": "1.7.2",
+    "body-parser": "1.20.2",
+    "dotenv-flow": "4.1.0",
+    "express": "4.19.2",
+    "joi": "17.13.3",
+    "node-jose": "2.2.0",
+    "rxjs": "7.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.21",
+    "@types/node": "20.5.0",
+    "@types/node-jose": "1.1.13",
+    "@typescript-eslint/eslint-plugin": "7.16.1",
+    "@typescript-eslint/parser": "7.16.1",
+    "eslint": "8.57.0",
+    "eslint-plugin-import": "2.29.1",
+    "eslint-plugin-prettier": "5.1.3",
+    "prettier": "3.3.3",
+    "ts-node": "10.9.2",
+    "typescript": "5.4.5"
+  }
+}
