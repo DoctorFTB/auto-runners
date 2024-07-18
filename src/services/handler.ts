@@ -1,5 +1,7 @@
 import {
   catchError,
+  concatMap,
+  debounceTime,
   delay,
   exhaustMap,
   filter,
@@ -54,7 +56,8 @@ export function setupHandlers() {
 
   currentJobs
     .pipe(
-      map((value) => Object.keys(value).length),
+      debounceTime(250),
+      concatMap((value) => of(Object.keys(value).length)),
       tap((size) => {
         Logger.info('Active jobs: ' + size);
       }),
