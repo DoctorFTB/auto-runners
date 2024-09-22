@@ -119,6 +119,7 @@ export async function webhookHandler(): Promise<IWebhookHandlerData> {
         }
 
         break;
+      case 'canceling':
       case 'canceled':
       case 'failed':
       case 'skipped':

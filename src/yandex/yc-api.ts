@@ -76,7 +76,7 @@ async function getInstanceStatus(): Promise<InstanceStatus> {
   return res;
 }
 
-async function sendInstanceAction(action: keyof typeof actions) {
+async function sendInstanceAction(action: keyof typeof actions, retryCount = 0): Promise<any> {
   const token = await getToken();
 
   const additional = action === 'get' ? '' : `:${action}`;
@@ -95,6 +95,24 @@ async function sendInstanceAction(action: keyof typeof actions) {
       )
     ).data;
   } catch (e: any) {
+    const message = e.response.data?.message?.toString() || '';
+    const regexp = /(Start|Stop) operation '[a-z0-9]+' is in process|The instance "[a-z0-9]+" has an invalid state "([A-Z]+)" for this operation/;
+    const nextRetry = regexp.test(message);
+
+    if (nextRetry && retryCount < 5) {
+      const match = message.match(regexp)![1] as string;
+
+      if (
+        (['Start', 'PROVISIONING', 'STARTING', 'RUNNING'].includes(match) && action === 'start')
+        || (['Stop', 'STOPPING', 'STOPPED'].includes(match) && action === 'stop')
+      ) {
+        return { done: true };
+      }
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 5_000));
+      return await sendInstanceAction(action, retryCount + 1);
+    }
+
     Logger.error(`Got error on request ${action} instance`, JSON.stringify(e.response.data));
     return null;
   }
